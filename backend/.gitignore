@@ -1,0 +1,19 @@
+# Node modules
+node_modules/
+
+# Base de datos
+*.db
+*.sqlite
+database.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Archivos de entorno
+.env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
