@@ -5,6 +5,7 @@ let queryCrearTablaVehiculo = 'CREATE TABLE IF NOT EXISTS vehiculos \
 tipo TEXT, \
 marca TEXT, \
 modelo TEXT, \
+motor TEXT, \
 año INTEGER, \
 kilometraje INTEGER, \
 condicion TEXT, \
@@ -30,7 +31,9 @@ let queryCrearTablaCLientes = 'CREATE TABLE IF NOT EXISTS clientes \
 nombre TEXT NOT NULL, \
 apellido TEXT NOT NULL, \
 documento TEXT NOT NULL UNIQUE, \
+localidad TEXT, \
 telefono TEXT, \
+fecha_nacimiento TEXT, \
 FOREIGN KEY (id) REFERENCES usuarios(id)) \
 ON DELETE CASCADE';
 
@@ -39,8 +42,9 @@ let queryCrearTablaEmpleados = 'CREATE TABLE IF NOT EXISTS empleados \
 nombre TEXT NOT NULL, \
 apellido TEXT NOT NULL, \
 documento TEXT NOT NULL UNIQUE, \
-email TEXT NOT NULL UNIQUE, \
+localidad TEXT, \
 telefono TEXT, \
+fecha_nacimiento TEXT, \
 FOREIGN KEY (id) REFERENCES usuarios(id)) \
 ON DELETE CASCADE';
 
