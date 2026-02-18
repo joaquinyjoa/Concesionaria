@@ -61,6 +61,9 @@ ON DELETE CASCADE';
 (async () => {
     const db = await openDb();
 
+    //habilita las claves foraneas
+    await db.exec("PRAGMA foreign_keys = ON");
+
     //crea la tabla de vehiculos si no existe
     await db.exec(queryCrearTablaVehiculo);
 
