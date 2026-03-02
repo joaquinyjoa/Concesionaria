@@ -3,14 +3,14 @@ const db = require('../config/database');
 // Función para crear un nuevo vehículo en la base de datos
 async function crearVehiculo(vehiculo) {
     // Desestructuramos el objeto vehiculo para obtener sus propiedades
-    const {id, tipo, marca, modelo, motor, año,
+    const {id, tipo, marca, modelo, motor, anio,
         kilometraje, condicion, estado, precio} = vehiculo;
     
     // Consulta SQL para insertar un nuevo vehículo en la tabla "vehiculos"
     const query = 'INSERT INTO vehiculos \
-    (id, tipo, marca, modelo, motor, año, kilometraje, condicion, estado, precio)\
+    (id, tipo, marca, modelo, motor, anio, kilometraje, condicion, estado, precio)\
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [id, tipo, marca, modelo, motor, año,
+    const params = [id, tipo, marca, modelo, motor, anio,
          kilometraje, condicion, estado, precio];
 
     try {

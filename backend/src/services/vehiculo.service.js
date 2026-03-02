@@ -16,6 +16,14 @@ exports.create = async (data) => {
 
     const camposNumericos = ["id", "anio", "kilometraje", "precio"];
 
+    const camposString = [
+    "tipo",
+    "marca",
+    "modelo",
+    "motor",
+    "condicion",
+    "estado"];
+
     const errores = [];
 
     // Validar obligatorios
@@ -37,6 +45,20 @@ exports.create = async (data) => {
 
             if (isNaN(valor)) {
                 errores.push(`El campo ${campo} debe ser un número`);
+            }
+        }
+    }
+
+    //Validar que sean string
+    for (const campo of camposString) {
+
+        if (data[campo] !== undefined && data[campo] !== null && data[campo] !== "") {
+
+            const valor = data[campo];
+
+            // Si es completamente numérico
+            if (!isNaN(valor) && valor.trim() !== "") {
+                errores.push(`El campo ${campo} no puede ser numérico`);
             }
         }
     }
