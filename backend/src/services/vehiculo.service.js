@@ -8,13 +8,13 @@ exports.create = async (data) => {
         "marca",
         "modelo",
         "motor",
-        "año",
+        "anio",
         "kilometraje",
         "condicion",
         "estado",
         "precio"];
 
-    const camposNumericos = ["id", "año", "kilometraje", "precio"];
+    const camposNumericos = ["id", "anio", "kilometraje", "precio"];
 
     const errores = [];
 
