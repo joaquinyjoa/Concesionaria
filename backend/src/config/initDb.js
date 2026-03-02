@@ -16,8 +16,7 @@ let queryCrearTablaImagenes = 'CREATE TABLE IF NOT EXISTS imagenes \
 (id INTEGER PRIMARY KEY AUTOINCREMENT, \
 vehiculo_id INTEGER NOT NULL, \
 url TEXT NOT NULL, \
-FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id)) \
-ON DELETE CASCADE';
+FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id) ON DELETE CASCADE';
 
 let queryCrearTablaUsuarios = 'CREATE TABLE IF NOT EXISTS usuarios \
 (id INTEGER PRIMARY KEY AUTOINCREMENT, \
@@ -34,8 +33,7 @@ documento TEXT NOT NULL UNIQUE, \
 localidad TEXT, \
 telefono TEXT, \
 fecha_nacimiento TEXT, \
-FOREIGN KEY (id) REFERENCES usuarios(id)) \
-ON DELETE CASCADE';
+FOREIGN KEY (id) REFERENCES usuarios(id) ON DELETE CASCADE';
 
 let queryCrearTablaEmpleados = 'CREATE TABLE IF NOT EXISTS empleados \
 (id INTEGER PRIMARY KEY AUTOINCREMENT, \
@@ -45,8 +43,7 @@ documento TEXT NOT NULL UNIQUE, \
 localidad TEXT, \
 telefono TEXT, \
 fecha_nacimiento TEXT, \
-FOREIGN KEY (id) REFERENCES usuarios(id)) \
-ON DELETE CASCADE';
+FOREIGN KEY (id) REFERENCES usuarios(id) ON DELETE CASCADE';
 
 let queryCrearTablaVentas = 'CREATE TABLE IF NOT EXISTS ventas \
 (id INTEGER PRIMARY KEY AUTOINCREMENT, \
@@ -56,10 +53,9 @@ empleado_id INTEGER NOT NULL, \
 fecha_venta TEXT NOT NULL, \
 precio_venta REAL NOT NULL, \
 metodo_pago TEXT NOT NULL, \
-FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id), \
+FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id),  \
 FOREIGN KEY (cliente_id) REFERENCES clientes(id), \
-FOREIGN KEY (empleado_id) REFERENCES empleados(id)) \
-ON DELETE CASCADE';
+FOREIGN KEY (empleado_id) REFERENCES empleados(id) ON DELETE CASCADE';
 
 //inicializa la base de datos creando la tabla de usuarios si no existe
 (async () => {
