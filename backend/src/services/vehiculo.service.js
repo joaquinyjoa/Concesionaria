@@ -1,4 +1,3 @@
-const { error } = require("console");
 const vehiculoRepository = require("../repositories/vehiculo.repository");
 
 exports.create = async (data) => {
@@ -52,14 +51,16 @@ exports.create = async (data) => {
     //Validar que sean string
     for (const campo of camposString) {
 
-        if (data[campo] !== undefined && data[campo] !== null && data[campo] !== "") {
+        const valor = data[campo].trim();
 
-            const valor = data[campo];
+        // Si después de trim queda vacío
+        if (valor.length === 0) {
+            continue; // ya lo validaste como obligatorio arriba
+        }
 
-            // Si es completamente numérico
-            if (!isNaN(valor) && valor.trim() !== "") {
-                errores.push(`El campo ${campo} no puede ser numérico`);
-            }
+        // Si es convertible a número real
+        if (!isNaN(valor)) {
+            errores.push(`El campo ${campo} no puede ser numérico`);
         }
     }
 
