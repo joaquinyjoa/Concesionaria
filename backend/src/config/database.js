@@ -1,14 +1,12 @@
-const sqlite3 = require('sqlite3').verbose();
-const {open} = require('sqlite');
+require('dotenv').config();
+const { Pool } = require('pg');
 
-//crea la base de datos si no esxiste o se conecta a ella si ya existe, devuelve 
-// una promesa con la conexión a la base de datos
-async function openDb() {
-    return open({
-        filename: './database.db',
-        driver: sqlite3.Database
-    });
-}
+const pool = new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+});
 
-
-module.exports = openDb;
+module.exports = pool;
