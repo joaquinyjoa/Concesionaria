@@ -44,8 +44,3 @@ exports.login = async (data) => {
 
     return { token, rol: usuario.rol, id: usuario.id };
 }
-```
-
-Y agregá la variable en el `.env`:
-```
-JWT_SECRET=tu_clave_secreta_muy_larga_y_segura

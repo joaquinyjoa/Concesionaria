@@ -3,10 +3,10 @@ const router = express.Router();
 const controladorVehiculo = require('../controllers/vehiculoController');
 
 // Rutas para vehículos
-router.get('/', controladorVehiculo.getVehiculos);
-router.get('/:id', controladorVehiculo.getVehiculoById);
-router.post('/', controladorVehiculo.createVehiculo);
-router.put('/:id', controladorVehiculo.updateVehiculo);
-router.delete('/:id', controladorVehiculo.deleteVehiculo);
+router.get('/', controladorVehiculo.getVehiculos);                            // pública
+router.get('/:id', controladorVehiculo.getVehiculoById);                      // pública
+router.post('/', auth, isEmpleado, controladorVehiculo.createVehiculo);       // empleado/admin
+router.put('/:id', auth, isEmpleado, controladorVehiculo.updateVehiculo);     // empleado/admin
+router.delete('/:id', auth, isAdmin, controladorVehiculo.deleteVehiculo);     // solo admin
 
 module.exports = router;
