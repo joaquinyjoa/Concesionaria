@@ -2,9 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 router.use('/vehiculos', require('./vehiculoRoute'));
+router.use('/auth', require('./usuarioRoute'));
 
-// A futuro vas agregando así:
-// router.use('/usuarios', require('./usuarioRoute'));
-// router.use('/ventas', require('./ventaRoute'));
 
 module.exports = router;
