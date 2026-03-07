@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const controladorVehiculo = require('../controllers/vehiculoController');
+const auth = require('../middlewares/auth');
+const isEmpleado = require('../middlewares/isEmpleado');
+const isAdmin = require('../middlewares/isAdmin');
 
 // Rutas para vehículos
 router.get('/', controladorVehiculo.getVehiculos);                            // pública
