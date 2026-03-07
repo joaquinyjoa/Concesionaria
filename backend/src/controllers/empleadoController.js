@@ -20,7 +20,7 @@ exports.update = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
     try {
-        await empleadoService.delete(req.params.id);
+        await empleadoService.delete(req.params.id, req.usuario);
         res.status(200).json({ message: 'Empleado eliminado correctamente' });
     } catch (error) {
         next(error);

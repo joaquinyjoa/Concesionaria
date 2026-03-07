@@ -17,8 +17,13 @@ exports.update = async (id, data) => {
     return await empleadoRepository.update(id, data);
 }
 
-exports.delete = async (id) => {
+exports.delete = async (id, usuarioLogueado) => {
+    if (usuarioLogueado.rol === 'empleado' && usuarioLogueado.id !== parseInt(id)) {
+        throw new Error('No tenés permisos para eliminar esta cuenta');
+    }
+
     const empleado = await empleadoRepository.getById(id);
     if (!empleado) throw new Error('Empleado no encontrado');
+
     return await empleadoRepository.delete(id);
 }
