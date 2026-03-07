@@ -34,6 +34,10 @@ function errorHandler(err, req, res, next) {
     if (err.message === 'Email o contraseña incorrectos') {
         return res.status(401).json({ error: err.message });
     }
+    if (err.code === '23505') {
+        return res.status(400).json({ error: 'El documento ya está registrado' });
+    }
+    
 
     console.error(err);
     res.status(500).json({ error: 'Error interno del servidor' });
