@@ -2,6 +2,8 @@ const usuarioRepository = require('../repositories/usuario.repository');
 const clienteRepository = require('../repositories/cliente.repository');
 const empleadoRepository = require('../repositories/empleado.repository');
 const { validarRegistro, validarLogin } = require('../utils/usuario.validator');
+const { validarCliente } = require('../utils/cliente.validator');
+const { validarEmpleado } = require('../utils/empleado.validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
