@@ -1,29 +1,24 @@
-const db = require('../config/database');
+const pool = require('../config/database');
 
-// Función para crear un nuevo vehículo en la base de datos
 async function crearVehiculo(vehiculo) {
-    // Desestructuramos el objeto vehiculo para obtener sus propiedades
-    const {id, tipo, marca, modelo, motor, anio,
-        kilometraje, condicion, estado, precio} = vehiculo;
+    const { tipo, marca, modelo, motor, anio,
+        kilometraje, condicion, estado, precio } = vehiculo; 
+
+    const query = `INSERT INTO vehiculos 
+        (tipo, marca, modelo, motor, anio, kilometraje, condicion, estado, precio)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id`;
     
-    // Consulta SQL para insertar un nuevo vehículo en la tabla "vehiculos"
-    const query = 'INSERT INTO vehiculos \
-    (id, tipo, marca, modelo, motor, anio, kilometraje, condicion, estado, precio)\
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [id, tipo, marca, modelo, motor, anio,
-         kilometraje, condicion, estado, precio];
+    const params = [tipo, marca, modelo, motor, anio,
+        kilometraje, condicion, estado, precio];
 
     try {
-        const dbConnection = await db();
-        // Ejecutamos la consulta SQL con los parámetros proporcionados y obtenemos el ID del nuevo vehículo insertado
-        const result = await dbConnection.run(query, params);
-        return result.lastID;
+        const result = await pool.query(query, params);
+        return result.rows[0].id; // así se obtiene el id en pg
     } catch (error) {
         console.error('Error al crear el vehículo:', error);
         throw error;
     }
 }
 
-module.exports = {
-    crearVehiculo
-};
+module.exports = { crearVehiculo };
