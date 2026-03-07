@@ -20,7 +20,7 @@ exports.update = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
     try {
-        await clienteService.delete(req.params.id);
+        await clienteService.delete(req.params.id, req.usuario); // req.usuario viene del middleware auth
         res.status(200).json({ message: 'Cliente eliminado correctamente' });
     } catch (error) {
         next(error);

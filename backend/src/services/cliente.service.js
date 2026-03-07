@@ -17,8 +17,13 @@ exports.update = async (id, data) => {
     return await clienteRepository.update(id, data);
 }
 
-exports.delete = async (id) => {
-    const cliente = await clienteRepository.getById(id);
+exports.delete = async (idCliente, usuarioLogueado) => {
+    // el cliente solo puede borrarse a si mismo
+    // el admin puede borrar a cualquiera
+    if (usuarioLogueado.rol === 'cliente' && usuarioLogueado.id !== parseInt(idCliente)) {
+        throw new Error('No tenés permisos para eliminar esta cuenta');
+    }
+    const cliente = await clienteRepository.getById(idCliente);
     if (!cliente) throw new Error('Cliente no encontrado');
-    return await clienteRepository.delete(id);
+    return await clienteRepository.delete(idCliente);
 }
