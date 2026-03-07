@@ -1,8 +1,6 @@
-//configuracion express y middleware global
-
 const express = require("express");
 const app = express();
-const router = require("./routes/vehiculoRoute");
+const router = require("./routes"); // ✅ apunta al index
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
