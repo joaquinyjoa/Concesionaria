@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS vehiculos (
     kilometraje INTEGER,
     condicion VARCHAR(50),
     estado VARCHAR(50),
+    descripcion TEXT,
     precio NUMERIC
 );
 `;

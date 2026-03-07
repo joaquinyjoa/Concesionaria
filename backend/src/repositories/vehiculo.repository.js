@@ -14,15 +14,15 @@ exports.getById = async (id) => {
 //crecion del vehiculo
 exports.create = async (data) => {
     const { tipo, marca, modelo, motor, anio,
-        kilometraje, condicion, estado, precio } = data;
+        kilometraje, condicion, estado, descripcion, precio } = data;
 
     const query = `INSERT INTO vehiculos 
-        (tipo, marca, modelo, motor, anio, kilometraje, condicion, estado, precio)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        (tipo, marca, modelo, motor, anio, kilometraje, condicion, estado, descripcion, precio)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id`;
 
     const params = [tipo, marca, modelo, motor, anio,
-        kilometraje, condicion, estado, precio];
+         kilometraje, condicion, estado, descripcion, precio];
 
     const result = await pool.query(query, params);
     return result.rows[0].id;
@@ -31,17 +31,17 @@ exports.create = async (data) => {
 //actualizacion del vheiculo
 exports.update = async (id, data) => {
     const { tipo, marca, modelo, motor, anio,
-        kilometraje, condicion, estado, precio } = data;
+        kilometraje, condicion, estado, descripcion, precio } = data;
 
     const query = `UPDATE vehiculos SET
         tipo = $1, marca = $2, modelo = $3, motor = $4,
         anio = $5, kilometraje = $6, condicion = $7,
-        estado = $8, precio = $9
-        WHERE id = $10
+        estado = $8, descripcion = $9, precio = $10
+        WHERE id = $11
         RETURNING *`;
 
     const params = [tipo, marca, modelo, motor, anio,
-        kilometraje, condicion, estado, precio, id];
+        kilometraje, condicion, estado, descripcion, precio, id];
 
     const result = await pool.query(query, params);
     return result.rows[0];

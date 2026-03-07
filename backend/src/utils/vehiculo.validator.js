@@ -87,6 +87,15 @@ function validarVehiculo(data) {
         }
     }
 
+    // descripcion válida
+    if (data.descripcion !== undefined && data.descripcion !== null && data.descripcion !== "") {
+        if (typeof data.descripcion !== 'string') {
+            errores.push("La descripción debe ser texto");
+        } else if (data.descripcion.trim().length > 500) {
+            errores.push("La descripción no puede superar los 500 caracteres");
+        }
+    }
+
     return errores;
 }
 
