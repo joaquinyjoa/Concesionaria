@@ -33,3 +33,9 @@ exports.update = async (id, data) => {
     
     return await vehiculoRepository.update(id, data);
 }
+
+exports.delete = async (id) => {
+    const vehiculo = await vehiculoRepository.getById(id);
+    if (!vehiculo) throw new Error('Vehículo no encontrado');
+    return await vehiculoRepository.delete(id);
+}

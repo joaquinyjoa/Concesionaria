@@ -47,3 +47,9 @@ exports.update = async (id, data) => {
     return result.rows[0];
 }
 
+exports.delete = async (id) => {
+    const result = await pool.query(
+        'DELETE FROM vehiculos WHERE id = $1 RETURNING *', [id]
+    );
+    return result.rows[0];
+}

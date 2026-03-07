@@ -43,3 +43,15 @@ exports.updateVehiculo = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar el vehículo' });
     }
 }
+
+exports.deleteVehiculo = async (req, res) => {
+    try {
+        await vehiculoService.delete(req.params.id);
+        res.status(200).json({ message: 'Vehículo eliminado correctamente' });
+    } catch (error) {
+        if (error.message === 'Vehículo no encontrado') {
+            return res.status(404).json({ error: error.message });
+        }
+        res.status(500).json({ error: 'Error al eliminar el vehículo' });
+    }
+}
