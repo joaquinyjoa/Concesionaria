@@ -9,6 +9,16 @@ exports.register = async (req, res, next) => {
     }
 }
 
+// solo el admin puede usar este endpoint
+exports.crearEmpleado = async (req, res, next) => {
+    try {
+        const empleado = await usuarioService.crearEmpleado(req.body);
+        res.status(201).json(empleado);
+    } catch (error) {
+        next(error);
+    }
+}
+
 exports.login = async (req, res, next) => {
     try {
         const { token, rol, id } = await usuarioService.login(req.body);

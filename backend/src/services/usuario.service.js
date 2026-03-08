@@ -1,7 +1,7 @@
 const usuarioRepository = require('../repositories/usuario.repository');
 const clienteRepository = require('../repositories/cliente.repository');
 const empleadoRepository = require('../repositories/empleado.repository');
-const { validarRegistro, validarLogin } = require('../utils/usuario.validator');
+const { validarRegistro, validarLogin, validarCrearEmpleado } = require('../utils/usuario.validator');
 const { validarCliente } = require('../utils/cliente.validator');
 const { validarEmpleado } = require('../utils/empleado.validator');
 const bcrypt = require('bcrypt');
@@ -54,6 +54,43 @@ exports.register = async (data) => {
     }
 
     return nuevoUsuario;
+}
+
+// función exclusiva para que el admin cree empleados
+exports.crearEmpleado = async (data) => {
+    // validar datos de autenticación con el validator de admin
+    const erroresUsuario = validarCrearEmpleado(data);
+    if (erroresUsuario.length > 0) throw new Error(erroresUsuario.join(', '));
+
+    // validar datos personales del empleado
+    const erroresEmpleado = validarEmpleado(data);
+    if (erroresEmpleado.length > 0) throw new Error(erroresEmpleado.join(', '));
+
+    // verificar que el email no esté registrado
+    const usuarioExistente = await usuarioRepository.getByEmail(data.email);
+    if (usuarioExistente) throw new Error('El email ya está registrado');
+
+    // hashear la contraseña
+    const hash = await bcrypt.hash(data.password, 10);
+
+    // crear el usuario con rol empleado o admin
+    const nuevoUsuario = await usuarioRepository.create({
+        email: data.email,
+        password: hash,
+        rol: data.rol.toLowerCase()
+    });
+
+    // crear el empleado con el mismo id del usuario
+    const nuevoEmpleado = await empleadoRepository.create(nuevoUsuario.id, {
+        nombre: data.nombre,
+        apellido: data.apellido,
+        documento: data.documento,
+        localidad: data.localidad,
+        telefono: data.telefono,
+        fecha_nacimiento: data.fecha_nacimiento
+    });
+
+    return { ...nuevoUsuario, ...nuevoEmpleado };
 }
 
 exports.login = async (data) => {
