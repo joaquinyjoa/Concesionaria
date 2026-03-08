@@ -36,6 +36,24 @@ exports.updateVehiculo = async (req, res, next) => {
     }
 }
 
+exports.reservar = async (req, res, next) => {
+    try {
+        const vehiculo = await vehiculoService.reservar(req.params.id);
+        res.status(200).json(vehiculo);
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.cancelarReserva = async (req, res, next) => {
+    try {
+        const vehiculo = await vehiculoService.cancelarReserva(req.params.id);
+        res.status(200).json(vehiculo);
+    } catch (error) {
+        next(error);
+    }
+}
+
 exports.deleteVehiculo = async (req, res, next) => {
     try {
         await vehiculoService.delete(req.params.id);

@@ -34,6 +34,24 @@ exports.update = async (id, data) => {
     return await vehiculoRepository.update(id, data);
 }
 
+exports.reservar = async (id) => {
+    const vehiculo = await vehiculoRepository.getById(id);
+    if (!vehiculo) throw new Error('Vehículo no encontrado');
+    if (vehiculo.estado.toLowerCase() !== 'disponible') {
+        throw new Error('El vehículo no está disponible para reservar');
+    }
+    return await vehiculoRepository.updateEstado(id, 'reservado');
+}
+
+exports.cancelarReserva = async (id) => {
+    const vehiculo = await vehiculoRepository.getById(id);
+    if (!vehiculo) throw new Error('Vehículo no encontrado');
+    if (vehiculo.estado.toLowerCase() !== 'reservado') {
+        throw new Error('El vehículo no está reservado');
+    }
+    return await vehiculoRepository.updateEstado(id, 'disponible');
+}
+
 exports.delete = async (id) => {
     const vehiculo = await vehiculoRepository.getById(id);
     if (!vehiculo) throw new Error('Vehículo no encontrado');
