@@ -8,25 +8,20 @@ exports.create = async (data) => {
     const errores = validarVenta(data);
     if (errores.length > 0) throw new Error(errores.join(', '));
 
-    // verificar que el vehículo existe y está disponible
     const vehiculo = await vehiculoRepository.getById(data.vehiculo_id);
     if (!vehiculo) throw new Error('Vehículo no encontrado');
-    if (vehiculo.estado.toLowerCase() !== 'disponible') {
-        throw new Error('El vehículo no está disponible para la venta');
+    if (vehiculo.estado.toLowerCase() !== 'reservado') { 
+        throw new Error('El vehículo debe estar reservado antes de venderse');
     }
 
-    // verificar que el cliente existe
     const cliente = await clienteRepository.getById(data.cliente_id);
     if (!cliente) throw new Error('Cliente no encontrado');
 
-    // verificar que el empleado existe
     const empleado = await empleadoRepository.getById(data.empleado_id);
     if (!empleado) throw new Error('Empleado no encontrado');
 
-    // crear la venta
     const venta = await ventaRepository.create(data);
 
-    // actualizar el estado del vehículo a vendido
     await vehiculoRepository.update(data.vehiculo_id, { ...vehiculo, estado: 'vendido' });
 
     return venta;
