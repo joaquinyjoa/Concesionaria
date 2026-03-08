@@ -47,6 +47,26 @@ exports.update = async (id, data) => {
     return result.rows[0];
 }
 
+exports.getByFiltros = async (filtros) => {
+    const { tipo, marca, modelo, motor, anio, kilometraje, estado, condicion } = filtros;
+
+    let query = 'SELECT * FROM vehiculos WHERE 1=1';
+    const params = [];
+    let i = 1;
+
+    if (tipo) { query += ` AND tipo ILIKE $${i}`; params.push(`%${tipo}%`); i++; }
+    if (marca) { query += ` AND marca ILIKE $${i}`; params.push(`%${marca}%`); i++; }
+    if (modelo) { query += ` AND modelo ILIKE $${i}`; params.push(`%${modelo}%`); i++; }
+    if (motor) { query += ` AND motor ILIKE $${i}`; params.push(`%${motor}%`); i++; }
+    if (anio) { query += ` AND anio = $${i}`; params.push(anio); i++; }
+    if (kilometraje) { query += ` AND kilometraje <= $${i}`; params.push(kilometraje); i++; }
+    if (estado) { query += ` AND estado ILIKE $${i}`; params.push(`%${estado}%`); i++; }
+    if (condicion) { query += ` AND condicion ILIKE $${i}`; params.push(`%${condicion}%`); i++; }
+
+    const result = await pool.query(query, params);
+    return result.rows;
+}
+
 exports.updateEstado = async (id, estado) => {
     const result = await pool.query(
         `UPDATE vehiculos SET estado = $1 WHERE id = $2 RETURNING *`,

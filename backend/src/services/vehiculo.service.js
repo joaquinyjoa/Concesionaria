@@ -52,6 +52,10 @@ exports.cancelarReserva = async (id) => {
     return await vehiculoRepository.updateEstado(id, 'disponible');
 }
 
+exports.getByFiltros = async (filtros) => {
+    return await vehiculoRepository.getByFiltros(filtros);
+}
+
 exports.delete = async (id) => {
     const vehiculo = await vehiculoRepository.getById(id);
     if (!vehiculo) throw new Error('Vehículo no encontrado');

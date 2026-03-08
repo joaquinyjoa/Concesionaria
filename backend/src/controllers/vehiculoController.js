@@ -54,6 +54,20 @@ exports.cancelarReserva = async (req, res, next) => {
     }
 }
 
+exports.getVehiculos = async (req, res, next) => {
+    try {
+        const tieneFiltros = Object.keys(req.query).length > 0;
+        if (tieneFiltros) {
+            const vehiculos = await vehiculoService.getByFiltros(req.query);
+            return res.status(200).json(vehiculos);
+        }
+        const vehiculos = await vehiculoService.getAll();
+        res.status(200).json(vehiculos);
+    } catch (error) {
+        next(error);
+    }
+}
+
 exports.deleteVehiculo = async (req, res, next) => {
     try {
         await vehiculoService.delete(req.params.id);
