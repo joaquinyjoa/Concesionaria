@@ -1,1 +1,35 @@
 @import "tailwindcss";
+
+:root {
+  --bg: #fdf6f4;
+  --bg-card: #ffffff;
+  --bg-nav: rgba(255,248,245,0.96);
+  --bg-hero: linear-gradient(135deg, #fff0ec 0%, #fdf6f4 60%, #ffeae0 100%);
+  --bg-footer: #1a1a2e;
+  --text: #1a1a2e;
+  --text-muted: #666;
+  --border: rgba(230,57,70,0.10);
+  --shadow: rgba(180,40,20,0.07);
+  --input-border: #f0d0ca;
+  --chip-bg: #fdf0ee;
+  --chip-border: #f5cfc9;
+}
+
+[data-tema="oscuro"] {
+  --bg: #0f0f1a;
+  --bg-card: #1a1a2e;
+  --bg-nav: rgba(15,15,26,0.96);
+  --bg-hero: linear-gradient(135deg, #150f0f 0%, #0f0f1a 60%, #1a0f0f 100%);
+  --bg-footer: #08080f;
+  --text: #f0ece8;
+  --text-muted: #aaa;
+  --border: rgba(230,57,70,0.20);
+  --shadow: rgba(0,0,0,0.3);
+  --input-border: rgba(230,57,70,0.25);
+  --chip-bg: rgba(230,57,70,0.10);
+  --chip-border: rgba(230,57,70,0.20);
+}
+
+* {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
