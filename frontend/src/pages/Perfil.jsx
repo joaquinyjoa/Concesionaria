@@ -4,6 +4,7 @@ import { User, Mail, CreditCard, MapPin, Phone, Calendar, Edit2, Save, X, LogOut
 import ToggleTema from '../components/ToggleTema'
 import { useAuth } from '../context/AuthContext'
 import { getClienteById, actualizarCliente } from '../api/clientes'
+import { cambiarPassword } from '../api/auth'
 import api from '../api/axios'
 
 const ESTADO_CONFIG = {
@@ -125,6 +126,11 @@ export default function Perfil() {
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
   const [exito, setExito] = useState(false)
+  const [seccionPass, setSeccionPass] = useState(false)
+  const [formPass, setFormPass] = useState({ actual: '', nueva: '', confirmar: '' })
+  const [guardandoPass, setGuardandoPass] = useState(false)
+  const [errorPass, setErrorPass] = useState(null)
+  const [exitoPass, setExitoPass] = useState(false)
 
   useEffect(() => {
     if (!usuario) { navigate('/login'); return }
@@ -170,6 +176,24 @@ export default function Perfil() {
   }
 
   const handleLogout = () => { logout(); navigate('/') }
+
+  const handleCambiarPassword = async () => {
+    setErrorPass(null)
+    if (formPass.nueva.length < 6) return setErrorPass('La nueva contraseña debe tener al menos 6 caracteres.')
+    if (formPass.nueva !== formPass.confirmar) return setErrorPass('Las contraseñas no coinciden.')
+    setGuardandoPass(true)
+    try {
+      await cambiarPassword(formPass.actual, formPass.nueva)
+      setExitoPass(true)
+      setFormPass({ actual: '', nueva: '', confirmar: '' })
+      setTimeout(() => setExitoPass(false), 3000)
+      setSeccionPass(false)
+    } catch (e) {
+      setErrorPass(e.response?.data?.error ?? 'No se pudo actualizar la contraseña.')
+    } finally {
+      setGuardandoPass(false)
+    }
+  }
 
   if (cargando) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -327,6 +351,51 @@ export default function Perfil() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* ── CAMBIAR CONTRASEÑA ── */}
+        <div style={{ marginTop: 24, background: 'var(--bg-card)', borderRadius: 20, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 20px var(--shadow)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: seccionPass ? 22 : 0 }}>
+            <div>
+              <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0 }}>Contraseña</h2>
+              {!seccionPass && <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0' }}>Cambiá tu contraseña de acceso</p>}
+            </div>
+            <button className="accion-btn" onClick={() => { setSeccionPass(s => !s); setErrorPass(null) }}
+              style={{ background: 'var(--bg)', color: 'var(--text-muted)', border: '1.5px solid var(--input-border)', padding: '7px 14px' }}>
+              {seccionPass ? <><X size={13} /> Cancelar</> : <><Edit2 size={13} /> Cambiar</>}
+            </button>
+          </div>
+
+          {exitoPass && (
+            <div style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#16a34a', fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
+              ✓ Contraseña actualizada correctamente
+            </div>
+          )}
+
+          {seccionPass && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {errorPass && (
+                <div style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(230,57,70,0.08)', border: '1px solid rgba(230,57,70,0.2)', color: '#e63946', fontSize: 13, fontWeight: 600 }}>
+                  {errorPass}
+                </div>
+              )}
+              {[
+                { key: 'actual', label: 'Contraseña actual', placeholder: 'Tu contraseña actual' },
+                { key: 'nueva', label: 'Nueva contraseña', placeholder: 'Mínimo 6 caracteres' },
+                { key: 'confirmar', label: 'Confirmar nueva', placeholder: 'Repetí la contraseña' },
+              ].map(({ key, label, placeholder }) => (
+                <div key={key}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>{label}</label>
+                  <input className="perfil-input" type="password" placeholder={placeholder}
+                    value={formPass[key]} onChange={e => setFormPass(f => ({ ...f, [key]: e.target.value }))} />
+                </div>
+              ))}
+              <button className="accion-btn" onClick={handleCambiarPassword} disabled={guardandoPass}
+                style={{ background: 'linear-gradient(90deg,#e63946,#f4845f)', color: '#fff', padding: '10px 20px', alignSelf: 'flex-end' }}>
+                <Save size={13} /> {guardandoPass ? 'Guardando...' : 'Guardar contraseña'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

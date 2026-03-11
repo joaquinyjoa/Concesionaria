@@ -6,6 +6,8 @@ const { validarCliente } = require('../utils/cliente.validator');
 const { validarEmpleado } = require('../utils/empleado.validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { enviarVerificacion, enviarResetPassword } = require('../utils/email');
 
 exports.register = async (data) => {
     // validar usuario
@@ -53,7 +55,64 @@ exports.register = async (data) => {
         return { ...nuevoUsuario, ...nuevoEmpleado };
     }
 
-    return nuevoUsuario;
+    const token = crypto.randomBytes(32).toString('hex');
+    const expira = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hs
+
+    await usuarioRepository.setResetToken(nuevoUsuario.id, token, expira);
+    await enviarVerificacion(data.email, token);
+
+    return { mensaje: 'Cuenta creada. Revisá tu email para verificarla.' };
+}
+
+// Verificar cuenta
+exports.verificarCuenta = async (token) => {
+    const usuario = await usuarioRepository.getByResetToken(token);
+    if (!usuario) throw new Error('Token inválido o expirado');
+    if (new Date() > new Date(usuario.reset_token_expira)) throw new Error('El link expiró');
+
+    await usuarioRepository.verificar(usuario.id);
+    return { mensaje: 'Cuenta verificada correctamente' };
+}
+
+// Solicitar reset de contraseña
+exports.solicitarReset = async (email) => {
+    const usuario = await usuarioRepository.getByEmail(email);
+    if (!usuario) return { mensaje: 'Si el email existe, recibirás un link.' } // no revelar si existe
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expira = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await usuarioRepository.setResetToken(usuario.id, token, expira);
+    await enviarResetPassword(email, token);
+
+    return { mensaje: 'Si el email existe, recibirás un link.' }
+}
+
+// Confirmar nueva contraseña
+exports.resetPassword = async (token, nuevaPassword) => {
+    const usuario = await usuarioRepository.getByResetToken(token);
+    if (!usuario) throw new Error('Token inválido o expirado');
+    if (new Date() > new Date(usuario.reset_token_expira)) throw new Error('El link expiró');
+
+    const hash = await bcrypt.hash(nuevaPassword, 10);
+    await usuarioRepository.updatePassword(usuario.id, hash);
+    await usuarioRepository.setResetToken(usuario.id, null, null);
+
+    return { mensaje: 'Contraseña actualizada correctamente' };
+}
+
+// Cambiar contraseña desde el perfil (logueado)
+exports.cambiarPassword = async (usuarioId, passwordActual, nuevaPassword) => {
+    const usuario = await usuarioRepository.getById(usuarioId);
+    if (!usuario) throw new Error('Usuario no encontrado');
+
+    const valido = await bcrypt.compare(passwordActual, usuario.password);
+    if (!valido) throw new Error('La contraseña actual es incorrecta');
+
+    const hash = await bcrypt.hash(nuevaPassword, 10);
+    await usuarioRepository.updatePassword(usuarioId, hash);
+
+    return { mensaje: 'Contraseña actualizada correctamente' };
 }
 
 // función exclusiva para que el admin cree empleados

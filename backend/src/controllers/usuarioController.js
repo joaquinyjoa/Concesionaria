@@ -27,3 +27,31 @@ exports.login = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.verificarCuenta = async (req, res, next) => {
+    try {
+        const result = await usuarioService.verificarCuenta(req.query.token);
+        res.status(200).json(result);
+    } catch (error) { next(error); }
+}
+
+exports.solicitarReset = async (req, res, next) => {
+    try {
+        const result = await usuarioService.solicitarReset(req.body.email);
+        res.status(200).json(result);
+    } catch (error) { next(error); }
+}
+
+exports.resetPassword = async (req, res, next) => {
+    try {
+        const result = await usuarioService.resetPassword(req.body.token, req.body.nuevaPassword);
+        res.status(200).json(result);
+    } catch (error) { next(error); }
+}
+
+exports.cambiarPassword = async (req, res, next) => {
+    try {
+        const result = await usuarioService.cambiarPassword(req.usuario.id, req.body.passwordActual, req.body.nuevaPassword);
+        res.status(200).json(result);
+    } catch (error) { next(error); }
+}

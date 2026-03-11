@@ -43,3 +43,37 @@ exports.delete = async (id) => {
     );
     return result.rows[0];
 }
+
+exports.getByResetToken = async (token) => {
+    const result = await pool.query(
+        `SELECT * FROM usuarios WHERE reset_token = $1`, [token]
+    );
+    return result.rows[0] ?? null;
+}
+
+exports.setResetToken = async (id, token, expira) => {
+    await pool.query(
+        `UPDATE usuarios SET reset_token = $1, reset_token_expira = $2 WHERE id = $3`,
+        [token, expira, id]
+    );
+}
+
+exports.verificar = async (id) => {
+    await pool.query(
+        `UPDATE usuarios SET verificado = true, reset_token = NULL, reset_token_expira = NULL WHERE id = $1`,
+        [id]
+    );
+}
+
+exports.updatePassword = async (id, hash) => {
+    await pool.query(
+        `UPDATE usuarios SET password = $1 WHERE id = $2`, [hash, id]
+    );
+}
+
+exports.getById = async (id) => {
+    const result = await pool.query(
+        `SELECT * FROM usuarios WHERE id = $1`, [id]
+    );
+    return result.rows[0] ?? null;
+}
