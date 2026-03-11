@@ -7,7 +7,7 @@ const errorHandler = require('./middlewares/errorHandler');
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://concesionaria-eight.vercel.app'
+    'https://concesionaria-lovat.vercel.app'
   ]
 }))
 app.use(express.json());
