@@ -4,12 +4,7 @@ const app = express();
 const router = require("./routes");
 const errorHandler = require('./middlewares/errorHandler');
 
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://concesionaria-lovat.vercel.app'
-  ]
-}))
+app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 app.use("/concesionaria", router);
