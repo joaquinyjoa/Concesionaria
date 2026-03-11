@@ -20,6 +20,15 @@ exports.getById = async (id) => {
     return result.rows[0];
 }
 
+exports.getAll = async () => {
+    const result = await pool.query(
+        `SELECT e.*, u.email FROM empleados e
+         JOIN usuarios u ON u.id = e.id
+         ORDER BY e.apellido, e.nombre`
+    );
+    return result.rows;
+}
+
 exports.update = async (id, data) => {
     const { nombre, apellido, documento, localidad, telefono, fecha_nacimiento } = data;
 
@@ -39,4 +48,12 @@ exports.delete = async (id) => {
         'DELETE FROM empleados WHERE id = $1 RETURNING id', [id]
     );
     return result.rows[0];
+}
+
+exports.getByUsuarioId = async (usuario_id) => {
+    const result = await pool.query(
+        `SELECT * FROM empleados WHERE usuario_id = $1`,
+        [usuario_id]
+    );
+    return result.rows[0] ?? null;
 }

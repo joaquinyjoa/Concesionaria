@@ -27,3 +27,11 @@ exports.delete = async (idCliente, usuarioLogueado) => {
     if (!cliente) throw new Error('Cliente no encontrado');
     return await clienteRepository.delete(idCliente);
 }
+
+exports.getAll = async () => {
+    return await clienteRepository.getAll();
+}
+
+exports.buscar = async (q) => {
+    return clienteRepository.buscar(q)
+}

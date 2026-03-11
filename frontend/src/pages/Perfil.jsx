@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, Mail, CreditCard, MapPin, Phone, Calendar, Edit2, Save, X, LogOut, Car, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { User, Mail, CreditCard, MapPin, Phone, Calendar, Edit2, Save, X, LogOut, Car, Clock, CheckCircle, XCircle, Download } from 'lucide-react'
 import ToggleTema from '../components/ToggleTema'
 import { useAuth } from '../context/AuthContext'
 import { getClienteById, actualizarCliente } from '../api/clientes'
+import api from '../api/axios'
 
 const ESTADO_CONFIG = {
   disponible: { label: 'Disponible', color: '#22c55e', icon: CheckCircle },
@@ -11,7 +12,106 @@ const ESTADO_CONFIG = {
   vendido:    { label: 'Vendido',    color: '#e63946', icon: XCircle },
 }
 
-console.log(JSON.parse(localStorage.getItem('usuario')))
+const fmt = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n)
+
+// ── Generador de ticket (Canvas) ──────────────────────────
+function generarTicketPDF({ venta, cliente }) {
+  const canvas = document.createElement('canvas')
+  const W = 595, H = 842
+  canvas.width = W; canvas.height = H
+  const ctx = canvas.getContext('2d')
+
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, W, H)
+
+  const grad = ctx.createLinearGradient(0, 0, W, 0)
+  grad.addColorStop(0, '#e63946')
+  grad.addColorStop(1, '#f4845f')
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, W, 120)
+
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 32px Arial'
+  ctx.fillText('AUTO CARE', 40, 52)
+  ctx.font = '16px Arial'
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'
+  ctx.fillText('Comprobante de Compra', 40, 78)
+
+  ctx.font = 'bold 18px Arial'
+  ctx.fillStyle = '#ffffff'
+  ctx.textAlign = 'right'
+  ctx.fillText(`Venta #${venta.id}`, W - 40, 52)
+  ctx.font = '13px Arial'
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'
+  ctx.fillText(new Date(venta.fecha_venta || Date.now()).toLocaleDateString('es-AR', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  }), W - 40, 78)
+  ctx.textAlign = 'left'
+
+  let y = 160
+  const drawSection = (title, items) => {
+    ctx.fillStyle = '#f8f9fa'
+    ctx.fillRect(40, y - 8, W - 80, 28)
+    ctx.fillStyle = '#e63946'
+    ctx.font = 'bold 13px Arial'
+    ctx.fillText(title.toUpperCase(), 52, y + 12)
+    y += 36
+    items.forEach(([label, val]) => {
+      if (!val) return
+      ctx.fillStyle = '#6b7280'
+      ctx.font = '12px Arial'
+      ctx.fillText(label, 52, y)
+      ctx.fillStyle = '#111827'
+      ctx.font = '13px Arial'
+      ctx.fillText(String(val), 200, y)
+      y += 24
+    })
+    y += 12
+  }
+
+  drawSection('Datos del cliente', [
+    ['Nombre:', `${cliente?.nombre ?? ''} ${cliente?.apellido ?? ''}`],
+    ['DNI:', cliente?.documento],
+    ['Email:', cliente?.email],
+    ['Teléfono:', cliente?.telefono],
+    ['Localidad:', cliente?.localidad],
+  ])
+
+  drawSection('Vehículo adquirido', [
+    ['Vehículo:', `${venta.marca ?? ''} ${venta.modelo ?? ''}`],
+    ['Tipo:', venta.tipo ? venta.tipo.charAt(0).toUpperCase() + venta.tipo.slice(1) : ''],
+    ['Año:', venta.anio],
+  ])
+
+  drawSection('Datos de la venta', [
+    ['Vendedor:', venta.empleado_nombre ? `${venta.empleado_nombre} ${venta.empleado_apellido}` : '—'],
+    ['Método de pago:', venta.metodo_pago ? venta.metodo_pago.charAt(0).toUpperCase() + venta.metodo_pago.slice(1) : ''],
+    ['Precio de venta:', fmt(venta.precio_venta)],
+  ])
+
+  const priceGrad = ctx.createLinearGradient(40, y, W - 80, y)
+  priceGrad.addColorStop(0, '#e63946')
+  priceGrad.addColorStop(1, '#f4845f')
+  ctx.fillStyle = priceGrad
+  ctx.fillRect(40, y, W - 80, 64)
+  ctx.fillStyle = '#ffffff'
+  ctx.font = '14px Arial'
+  ctx.fillText('TOTAL ABONADO', 60, y + 24)
+  ctx.font = 'bold 28px Arial'
+  ctx.fillText(fmt(venta.precio_venta), 60, y + 52)
+  y += 80
+
+  ctx.fillStyle = '#9ca3af'
+  ctx.font = '11px Arial'
+  ctx.textAlign = 'center'
+  ctx.fillText('Este comprobante es válido como constancia de compra. Auto Care — ' + new Date().getFullYear(), W / 2, H - 40)
+  ctx.textAlign = 'left'
+
+  const link = document.createElement('a')
+  link.download = `ticket-venta-${venta.id}.png`
+  link.href = canvas.toDataURL('image/png')
+  link.click()
+}
 
 export default function Perfil() {
   const navigate = useNavigate()
@@ -39,6 +139,11 @@ export default function Perfil() {
           telefono: c.telefono ?? '',
           localidad: c.localidad ?? '',
         })
+        // Cargar ventas del cliente
+        try {
+          const ventasData = await api.get(`/ventas/cliente/${c.id}`).then(r => r.data)
+          setVentas(Array.isArray(ventasData) ? ventasData : [])
+        } catch { setVentas([]) }
       } catch {
         setError('No se pudieron cargar los datos.')
       } finally {
@@ -64,10 +169,7 @@ export default function Perfil() {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+  const handleLogout = () => { logout(); navigate('/') }
 
   if (cargando) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -88,7 +190,10 @@ export default function Perfil() {
         .perfil-input:disabled { opacity: 0.6; cursor: not-allowed; }
         .accion-btn { padding: 9px 18px; border-radius: 11px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s, transform 0.15s; font-family: 'DM Sans', sans-serif; }
         .accion-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .venta-card { transition: all 0.2s; }
         .venta-card:hover { box-shadow: 0 6px 24px var(--shadow) !important; transform: translateY(-2px); }
+        .ticket-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 5px 10px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text-muted); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+        .ticket-btn:hover { border-color: #e63946; color: #e63946; background: rgba(230,57,70,0.05); }
       `}</style>
 
       {/* NAVBAR */}
@@ -111,17 +216,15 @@ export default function Perfil() {
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 5vw 60px' }}>
 
-        {/* Header perfil */}
+        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {/* Avatar inicial */}
             <div style={{
               width: 64, height: 64, borderRadius: 20,
               background: 'linear-gradient(135deg, #e63946, #f4845f)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 6px 20px rgba(230,57,70,0.3)',
-              fontSize: 26, fontWeight: 800, color: '#fff',
-              fontFamily: "'Sora', sans-serif",
+              fontSize: 26, fontWeight: 800, color: '#fff', fontFamily: "'Sora', sans-serif",
             }}>
               {cliente?.nombre?.[0]?.toUpperCase() ?? '?'}
             </div>
@@ -129,19 +232,15 @@ export default function Perfil() {
               <h1 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 24, color: 'var(--text)', margin: 0 }}>
                 {cliente?.nombre} {cliente?.apellido}
               </h1>
-              <span style={{ fontSize: 12, color: '#e63946', fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>
-                Cliente
-              </span>
+              <span style={{ fontSize: 12, color: '#e63946', fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>Cliente</span>
             </div>
           </div>
-
           <button className="accion-btn" onClick={handleLogout}
             style={{ background: 'rgba(230,57,70,0.08)', color: '#e63946', border: '1px solid rgba(230,57,70,0.2)' }}>
             <LogOut size={15} /> Cerrar sesión
           </button>
         </div>
 
-        {/* Mensajes */}
         {error && (
           <div style={{ marginBottom: 20, padding: '12px 16px', borderRadius: 12, background: 'rgba(230,57,70,0.08)', border: '1px solid rgba(230,57,70,0.2)', color: '#e63946', fontSize: 13, fontWeight: 600 }}>
             {error}
@@ -155,12 +254,10 @@ export default function Perfil() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.2fr)', gap: 24, alignItems: 'start' }}>
 
-          {/* ── DATOS PERSONALES ── */}
+          {/* DATOS PERSONALES */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 20, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 20px var(--shadow)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0 }}>
-                Datos personales
-              </h2>
+              <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: 0 }}>Datos personales</h2>
               {!editando ? (
                 <button className="accion-btn" onClick={() => setEditando(true)}
                   style={{ background: 'var(--bg)', color: 'var(--text-muted)', border: '1.5px solid var(--input-border)', padding: '7px 14px' }}>
@@ -179,17 +276,12 @@ export default function Perfil() {
                 </div>
               )}
             </div>
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {/* Solo lectura */}
               <InfoRow icon={<Mail size={14} color="#e63946" />} label="Email" value={usuario?.email} />
               <InfoRow icon={<CreditCard size={14} color="#e63946" />} label="DNI" value={cliente?.documento} />
               <InfoRow icon={<Calendar size={14} color="#e63946" />} label="Fecha de nacimiento"
                 value={cliente?.fecha_nacimiento ? new Date(cliente.fecha_nacimiento).toLocaleDateString('es-AR') : '—'} />
-
               <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
-
-              {/* Editables */}
               <EditableRow icon={<User size={14} color="#e63946" />} label="Nombre"
                 value={editando ? form.nombre : cliente?.nombre}
                 editando={editando} onChange={v => setForm(f => ({ ...f, nombre: v }))} />
@@ -205,7 +297,7 @@ export default function Perfil() {
             </div>
           </div>
 
-          {/* ── HISTORIAL ── */}
+          {/* HISTORIAL */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 20, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 20px var(--shadow)' }}>
             <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: 'var(--text)', margin: '0 0 22px' }}>
               Mis vehículos
@@ -223,14 +315,21 @@ export default function Perfil() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {ventas.map(venta => <VentaCard key={venta.id} venta={venta} onVerDetalle={() => navigate(`/vehiculos/${venta.vehiculo_id}`)} />)}
+                {ventas.map(venta => (
+                  <VentaCard
+                    key={venta.id}
+                    venta={venta}
+                    cliente={cliente}
+                    onVerDetalle={() => navigate(`/vehiculos/${venta.vehiculo_id}`)}
+                    onDescargarTicket={() => generarTicketPDF({ venta, cliente })}
+                  />
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* FOOTER */}
       <footer style={{ background: 'var(--bg-footer)', color: '#aaa', textAlign: 'center', padding: '28px 5vw', fontSize: 13 }}>
         <span style={{ color: '#e63946', fontWeight: 700, fontFamily: "'Sora',sans-serif" }}>AUTO CARE</span>
         {' '}— Todos los derechos reservados © {new Date().getFullYear()}
@@ -239,7 +338,6 @@ export default function Perfil() {
   )
 }
 
-// ─── Fila solo lectura ─────────────────────────────────────
 function InfoRow({ icon, label, value }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -254,7 +352,6 @@ function InfoRow({ icon, label, value }) {
   )
 }
 
-// ─── Fila editable ────────────────────────────────────────
 function EditableRow({ icon, label, value, editando, onChange }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -273,23 +370,22 @@ function EditableRow({ icon, label, value, editando, onChange }) {
   )
 }
 
-// ─── Card de venta ────────────────────────────────────────
-function VentaCard({ venta, onVerDetalle }) {
+function VentaCard({ venta, cliente, onVerDetalle, onDescargarTicket }) {
   const estado = ESTADO_CONFIG[venta.vehiculo?.estado] ?? ESTADO_CONFIG.vendido
   const EstadoIcon = estado.icon
   return (
     <div className="venta-card" style={{
       background: 'var(--bg)', borderRadius: 14, padding: '14px 16px',
-      border: '1px solid var(--border)', transition: 'all 0.2s', cursor: 'pointer',
-    }} onClick={onVerDetalle}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+      border: '1px solid var(--border)', cursor: 'pointer',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }} onClick={onVerDetalle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(230,57,70,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Car size={18} color="#e63946" />
           </div>
           <div>
             <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', margin: 0, fontFamily: "'Sora', sans-serif" }}>
-              {venta.vehiculo?.marca} {venta.vehiculo?.modelo}
+              {venta.marca} {venta.modelo}
             </p>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
               {venta.fecha_venta ? new Date(venta.fecha_venta).toLocaleDateString('es-AR') : '—'} · {venta.metodo_pago}
@@ -298,12 +394,15 @@ function VentaCard({ venta, onVerDetalle }) {
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <p style={{ fontSize: 15, fontWeight: 800, color: '#e63946', margin: 0, fontFamily: "'Sora', sans-serif" }}>
-            ${venta.precio_venta?.toLocaleString()}
+            {fmt(venta.precio_venta)}
           </p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: estado.color, marginTop: 3 }}>
-            <EstadoIcon size={11} /> {estado.label}
-          </div>
         </div>
+      </div>
+      {/* Botón ticket */}
+      <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end' }}>
+        <button className="ticket-btn" onClick={e => { e.stopPropagation(); onDescargarTicket() }}>
+          <Download size={12} /> Descargar ticket
+        </button>
       </div>
     </div>
   )

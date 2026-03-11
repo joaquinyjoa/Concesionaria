@@ -26,3 +26,12 @@ exports.delete = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.getAll = async (req, res, next) => {
+    try {
+        const empleados = await empleadoService.getAll();
+        res.status(200).json(empleados);
+    } catch (error) {
+        next(error);
+    }
+}

@@ -1,7 +1,19 @@
 const pool = require('../config/database');
 
 exports.getAll = async () => {
-    const result = await pool.query('SELECT * FROM vehiculos');
+    const result = await pool.query(`
+        SELECT v.*,
+            COALESCE(
+                json_agg(
+                    json_build_object('id', i.id, 'url', i.url)
+                ) FILTER (WHERE i.id IS NOT NULL),
+                '[]'
+            ) AS imagenes
+        FROM vehiculos v
+        LEFT JOIN imagenes i ON i.vehiculo_id = v.id
+        GROUP BY v.id
+        ORDER BY v.id DESC
+    `);
     return result.rows;
 }
 

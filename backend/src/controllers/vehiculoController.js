@@ -38,12 +38,12 @@ exports.updateVehiculo = async (req, res, next) => {
 
 exports.reservar = async (req, res, next) => {
     try {
-        const vehiculo = await vehiculoService.reservar(req.params.id);
+        const vehiculo = await vehiculoService.reservar(req.params.id, req.usuario);
         res.status(200).json(vehiculo);
     } catch (error) {
         next(error);
     }
-}
+};
 
 exports.cancelarReserva = async (req, res, next) => {
     try {

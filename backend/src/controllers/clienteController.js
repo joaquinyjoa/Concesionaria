@@ -26,3 +26,23 @@ exports.delete = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.getAll = async (req, res, next) => {
+    try {
+        const clientes = await clienteService.getAll();
+        res.status(200).json(clientes);
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.buscar = async (req, res, next) => {
+    try {
+        const { q } = req.query
+        if (!q || q.trim().length < 2) return res.json([])
+        const clientes = await clienteService.buscar(q.trim())
+        res.json(clientes)
+    } catch (error) {
+        next(error);
+    }
+}

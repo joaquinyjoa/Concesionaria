@@ -40,3 +40,24 @@ exports.delete = async (id) => {
     );
     return result.rows[0];
 }
+
+exports.getAll = async () => {
+    const result = await pool.query(
+        `SELECT c.*, u.email FROM clientes c
+         JOIN usuarios u ON u.id = c.id
+         ORDER BY c.apellido, c.nombre`
+    );
+    return result.rows;
+}
+
+exports.buscar = async (q) => {
+    const result = await pool.query(
+        `SELECT id, nombre, apellido, documento, email, telefono, localidad
+         FROM clientes
+         WHERE LOWER(nombre || ' ' || apellido) LIKE LOWER($1)
+            OR documento LIKE $1
+         LIMIT 10`,
+        [`%${q}%`]
+    )
+    return result.rows
+}

@@ -27,3 +27,11 @@ exports.delete = async (id, usuarioLogueado) => {
 
     return await empleadoRepository.delete(id);
 }
+
+exports.getAll = async () => {
+    return await empleadoRepository.getAll();
+}
+
+exports.getByUsuarioId = async (usuario_id) => {
+    return await empleadoRepository.getByUsuarioId(usuario_id);
+}

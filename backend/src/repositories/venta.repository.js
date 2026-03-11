@@ -41,3 +41,32 @@ exports.getById = async (id) => {
     const result = await pool.query(query, [id]);
     return result.rows[0];
 }
+
+exports.getAllByEmpleado = async (empleado_id) => {
+    const query = `SELECT v.*, 
+        ve.marca, ve.modelo,
+        c.nombre AS cliente_nombre, c.apellido AS cliente_apellido,
+        e.nombre AS empleado_nombre, e.apellido AS empleado_apellido
+        FROM ventas v
+        JOIN vehiculos ve ON v.vehiculo_id = ve.id
+        JOIN clientes c ON v.cliente_id = c.id
+        JOIN empleados e ON v.empleado_id = e.id
+        WHERE v.empleado_id = $1
+        ORDER BY v.fecha_venta DESC`;
+
+    const result = await pool.query(query, [empleado_id]);
+    return result.rows;
+}
+
+exports.getAllByCliente = async (cliente_id) => {
+    const query = `SELECT v.*, 
+        ve.marca, ve.modelo, ve.tipo, ve.anio,
+        e.nombre AS empleado_nombre, e.apellido AS empleado_apellido
+        FROM ventas v
+        JOIN vehiculos ve ON v.vehiculo_id = ve.id
+        JOIN empleados e ON v.empleado_id = e.id
+        WHERE v.cliente_id = $1
+        ORDER BY v.fecha_venta DESC`;
+    const result = await pool.query(query, [cliente_id]);
+    return result.rows;
+}
