@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-    baseURL: '/concesionaria'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/concesionaria',
 })
 
 // interceptor que agrega el token en cada request automáticamente
