@@ -70,3 +70,4 @@ exports.getAllByCliente = async (cliente_id) => {
     const result = await pool.query(query, [cliente_id]);
     return result.rows;
 }
+
