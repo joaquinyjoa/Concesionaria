@@ -62,6 +62,11 @@ export default function Register() {
         @keyframes spin { to { transform: rotate(360deg) } }
         .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
         .spinner-red { width: 18px; height: 18px; border: 2.5px solid rgba(230,57,70,0.2); border-top-color: #e63946; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+        @media (max-width: 480px) {
+          .reg-card { padding: 24px 20px 20px !important; border-radius: 18px !important; }
+          .reg-title { font-size: 22px !important; }
+          .reg-top { padding: 32px 5vw 44px !important; }
+        }
       `}</style>
 
       {/* NAVBAR */}

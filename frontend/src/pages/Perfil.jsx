@@ -218,6 +218,15 @@ export default function Perfil() {
         .venta-card:hover { box-shadow: 0 6px 24px var(--shadow) !important; transform: translateY(-2px); }
         .ticket-btn { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 5px 10px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--text-muted); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
         .ticket-btn:hover { border-color: #e63946; color: #e63946; background: rgba(230,57,70,0.05); }
+        @media (max-width: 768px) {
+          .perfil-grid { grid-template-columns: 1fr !important; }
+          .perfil-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          .perfil-padding { padding: 24px 5vw 40px !important; }
+        }
+        @media (max-width: 480px) {
+          .perfil-avatar { width: 48px !important; height: 48px !important; font-size: 20px !important; }
+          .perfil-nombre { font-size: 20px !important; }
+        }
       `}</style>
 
       {/* NAVBAR */}
@@ -241,7 +250,7 @@ export default function Perfil() {
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 5vw 60px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }} className="perfil-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
               width: 64, height: 64, borderRadius: 20,
@@ -276,7 +285,7 @@ export default function Perfil() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.2fr)', gap: 24, alignItems: 'start' }}>
+        <div className="perfil-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.2fr)', gap: 24, alignItems: 'start' }}>
 
           {/* DATOS PERSONALES */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 20, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 20px var(--shadow)' }}>

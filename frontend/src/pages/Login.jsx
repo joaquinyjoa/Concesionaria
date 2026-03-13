@@ -64,6 +64,10 @@ export default function Login() {
         .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
         @keyframes spin { to { transform: rotate(360deg) } }
         .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+        @media (max-width: 480px) {
+          .login-card { padding: 24px 20px 20px !important; border-radius: 18px !important; }
+          .login-title { font-size: 22px !important; }
+        }
       `}</style>
 
       <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'var(--bg-nav)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border)', padding: '0 5vw', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -89,7 +93,7 @@ export default function Login() {
             </p>
           </div>
 
-          <div style={{ background: 'var(--bg-card)', borderRadius: 24, padding: '32px 32px 28px', boxShadow: '0 8px 40px var(--shadow)', border: '1px solid var(--border)' }}>
+          <div className="login-card" style={{ background: 'var(--bg-card)', borderRadius: 24, padding: '32px 32px 28px', boxShadow: '0 8px 40px var(--shadow)', border: '1px solid var(--border)' }}>
 
             {error && (
               <div style={{ marginBottom: 20, padding: '12px 16px', borderRadius: 12, background: 'rgba(230,57,70,0.08)', border: '1px solid rgba(230,57,70,0.2)', color: '#e63946', fontSize: 13, fontWeight: 600 }}>

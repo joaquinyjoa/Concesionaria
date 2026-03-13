@@ -97,6 +97,15 @@ export default function DetalleVehiculo() {
         .reservar-btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 16px; font-weight: 800; border: none; cursor: pointer; font-family: 'Sora', sans-serif; letter-spacing: 0.5px; transition: opacity 0.2s, transform 0.15s; }
         .reservar-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
         .reservar-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        @media (max-width: 768px) {
+          .detalle-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+          .spec-grid { grid-template-columns: 1fr 1fr !important; }
+          .detalle-padding { padding: 24px 5vw 40px !important; }
+        }
+        @media (max-width: 480px) {
+          .spec-grid { grid-template-columns: 1fr !important; }
+          .reservar-btn { font-size: 14px !important; padding: 12px !important; }
+        }
       `}</style>
 
       {/* NAVBAR */}
@@ -135,7 +144,7 @@ export default function DetalleVehiculo() {
           <span>{vehiculo.marca} {vehiculo.modelo}</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.1fr) minmax(0,0.9fr)', gap: 40, alignItems: 'start' }}>
+        <div className="detalle-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.1fr) minmax(0,0.9fr)', gap: 40, alignItems: 'start' }}>
 
           {/* ── COLUMNA IZQUIERDA: imágenes ── */}
           <div>
@@ -232,7 +241,7 @@ export default function DetalleVehiculo() {
             </div>
 
             {/* Specs */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+            <div className="spec-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
               <SpecCard icon={<Gauge size={16} color="#e63946" />} label="Kilometraje" value={`${vehiculo.kilometraje?.toLocaleString()} km`} />
               <SpecCard icon={<Calendar size={16} color="#e63946" />} label="Año" value={vehiculo.anio} />
               <SpecCard icon={<Wrench size={16} color="#e63946" />} label="Motor" value={vehiculo.motor} />

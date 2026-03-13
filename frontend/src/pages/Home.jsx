@@ -165,6 +165,19 @@ export default function Home() {
         .hero-fade.visible { opacity: 1; transform: translateY(0); }
         @keyframes spin { to { transform: rotate(360deg) } }
         .spinner-red { width: 16px; height: 16px; border: 2px solid rgba(230,57,70,0.2); border-top-color: #e63946; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+        @media (max-width: 640px) {
+          .hero-section { padding: 40px 5vw 32px !important; }
+          .hero-title { font-size: 28px !important; }
+          .hero-pills { flex-direction: column !important; gap: 8px !important; }
+          .nav-links { display: none !important; }
+          .nav-user-btn span { display: none; }
+          .filtros-section { padding: 20px 5vw 0 !important; }
+          .grid-vehiculos { grid-template-columns: 1fr !important; }
+          .grid-section { padding: 20px 5vw 32px !important; }
+        }
+        @media (max-width: 400px) {
+          .hero-title { font-size: 24px !important; }
+        }
       `}</style>
 
       {/* NAVBAR */}
@@ -182,7 +195,7 @@ export default function Home() {
             AUTO <span style={{ color: 'var(--text)' }}>CARE</span>
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }} className="nav-links">
           <ToggleTema />
           {usuario ? (
             <>
@@ -207,7 +220,7 @@ export default function Home() {
       </nav>
 
       {/* HERO */}
-      <section style={{
+      <section className="hero-section" style={{
         padding: '72px 5vw 56px',
         background: 'var(--bg-hero)',
         position: 'relative', overflow: 'hidden',
@@ -314,7 +327,7 @@ export default function Home() {
             <p style={{ fontSize: 16 }}>No hay vehículos con esos filtros</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
+          <div className="grid-vehiculos" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
             {paginados.map(v => <VehicleCard key={v.id} vehiculo={v} />)}
           </div>
         )}

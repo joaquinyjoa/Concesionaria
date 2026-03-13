@@ -144,6 +144,19 @@ export default function Admin() {
   const navigate = useNavigate()
   const [seccion, setSeccion] = useState('vehiculos')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      if (mobile) setSidebarOpen(false)
+      else setSidebarOpen(true)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const esAdmin = usuario?.rol === 'admin'
   const [notifs, setNotifs] = useState([])
   const [notifOpen, setNotifOpen] = useState(false)
@@ -252,15 +265,36 @@ export default function Admin() {
         .notif-item:last-child { border-bottom:none; }
         @keyframes notifPop { 0%{transform:scale(0.7);opacity:0} 100%{transform:scale(1);opacity:1} }
         .notif-badge { animation: notifPop 0.2s ease; }
+        @media (max-width: 768px) {
+          .admin-sidebar { position:fixed !important; left:0; top:0; height:100vh; z-index:200; box-shadow:4px 0 24px rgba(0,0,0,0.18); }
+          .search-input { width:140px !important; }
+          .admin-table-wrap { overflow-x: auto; }
+          .admin-table th:nth-child(n+5), .admin-table td:nth-child(n+5) { display:none; }
+          .stat-cards-row { flex-wrap: wrap !important; }
+          .stat-card { min-width: calc(50% - 8px) !important; }
+          .stats-grid { grid-template-columns: 1fr !important; }
+          .header-actions { gap: 8px !important; }
+          .modal { padding: 20px !important; }
+        }
+        @media (max-width: 480px) {
+          .stat-card { min-width: 100% !important; }
+          .search-input { width: 110px !important; }
+          .btn-icon span { display: none; }
+        }
       `}</style>
 
+      {/* OVERLAY en mobile */}
+      {isMobile && sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 199, backdropFilter: 'blur(2px)' }} />
+      )}
+
       {/* SIDEBAR */}
-      <aside style={{
+      <aside className="admin-sidebar" style={{
         width: sidebarOpen ? 220 : 0, minWidth: sidebarOpen ? 220 : 0,
         background: 'var(--bg-card)', borderRight: '1px solid var(--border)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         transition: 'width 0.25s, min-width 0.25s',
-        position: 'sticky', top: 0, height: '100vh',
+        position: isMobile ? 'fixed' : 'sticky', top: 0, height: '100vh',
       }}>
         <div style={{ padding: '20px 16px 12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -275,7 +309,7 @@ export default function Admin() {
         </div>
         <nav style={{ padding: '8px 10px', flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {nav.map(({ id, label, icon: Icon }) => (
-            <button key={id} className={`nav-item ${seccion === id ? 'active' : ''}`} onClick={() => setSeccion(id)}>
+            <button key={id} className={`nav-item ${seccion === id ? 'active' : ''}`} onClick={() => { setSeccion(id); if (isMobile) setSidebarOpen(false) }}>
               <Icon size={17} /><span style={{ whiteSpace: 'nowrap' }}>{label}</span>
             </button>
           ))}
@@ -1311,7 +1345,7 @@ function SeccionEstadisticas() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border)', padding: 24 }}>
           <h3 style={{ fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 15, color: 'var(--text)', marginBottom: 20 }}>Estado del inventario</h3>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 140, paddingBottom: 8 }}>

@@ -6,19 +6,15 @@ const { validarCliente } = require('../utils/cliente.validator');
 const { validarEmpleado } = require('../utils/empleado.validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const { enviarVerificacion, enviarResetPassword } = require('../utils/email');
+const { enviarResetPassword } = require('../utils/email');
 
 exports.register = async (data) => {
-    // validar usuario
     const erroresUsuario = validarRegistro(data);
     if (erroresUsuario.length > 0) throw new Error(erroresUsuario.join(', '));
 
-    // verificar si el email ya existe
     const usuarioExistente = await usuarioRepository.getByEmail(data.email);
     if (usuarioExistente) throw new Error('El email ya está registrado');
 
-    // validar datos personales según rol
     if (data.rol.toLowerCase() === 'cliente') {
         const erroresCliente = validarCliente(data);
         if (erroresCliente.length > 0) throw new Error(erroresCliente.join(', '));
@@ -27,10 +23,8 @@ exports.register = async (data) => {
         if (erroresEmpleado.length > 0) throw new Error(erroresEmpleado.join(', '));
     }
 
-    // hashear la contraseña
     const hash = await bcrypt.hash(data.password, 10);
 
-    // crear usuario
     const nuevoUsuario = await usuarioRepository.create({
         email: data.email,
         password: hash,
@@ -46,22 +40,15 @@ exports.register = async (data) => {
         fecha_nacimiento: data.fecha_nacimiento
     };
 
-    // crear cliente o empleado según rol
     if (data.rol.toLowerCase() === 'cliente') {
         const nuevoCliente = await clienteRepository.create(nuevoUsuario.id, datosPersonales);
+        await usuarioRepository.verificar(nuevoUsuario.id);
         return { ...nuevoUsuario, ...nuevoCliente };
     } else if (data.rol.toLowerCase() === 'empleado') {
         const nuevoEmpleado = await empleadoRepository.create(nuevoUsuario.id, datosPersonales);
+        await usuarioRepository.verificar(nuevoUsuario.id);
         return { ...nuevoUsuario, ...nuevoEmpleado };
     }
-
-    const token = crypto.randomBytes(32).toString('hex');
-    const expira = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hs
-
-    await usuarioRepository.setResetToken(nuevoUsuario.id, token, expira);
-    await enviarVerificacion(data.email, token);
-
-    return { mensaje: 'Cuenta creada. Revisá tu email para verificarla.' };
 }
 
 // Verificar cuenta
