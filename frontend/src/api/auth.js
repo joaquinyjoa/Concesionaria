@@ -6,3 +6,4 @@ export const solicitarReset = (email) => api.post('/auth/solicitar-reset', { ema
 export const resetPassword = (token, nuevaPassword) => api.post('/auth/reset-password', { token, nuevaPassword }).then(r => r.data)
 export const verificarCuenta = (token) => api.get(`/auth/verificar?token=${token}`).then(r => r.data)
 export const cambiarPassword = (passwordActual, nuevaPassword) => api.put('/auth/cambiar-password', { passwordActual, nuevaPassword }).then(r => r.data)
+export const crearEmpleado = (data) => api.post('/auth/crear-empleado', data).then(r => r.data)
