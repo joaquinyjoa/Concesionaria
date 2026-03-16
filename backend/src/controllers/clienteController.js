@@ -9,6 +9,14 @@ exports.getById = async (req, res, next) => {
     }
 }
 
+exports.getMe = async (req, res, next) => {
+    try {
+        const cliente = await clienteRepository.getById(req.usuario.id)
+        if (!cliente) return res.status(404).json({ error: 'Cliente no encontrado' })
+        res.json(cliente)
+    } catch (e) { next(e) }
+}
+
 exports.update = async (req, res, next) => {
     try {
         const cliente = await clienteService.update(req.params.id, req.body);

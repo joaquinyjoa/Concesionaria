@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { User, Mail, CreditCard, MapPin, Phone, Calendar, Edit2, Save, X, LogOut, Car, Clock, CheckCircle, XCircle, Download } from 'lucide-react'
 import ToggleTema from '../components/ToggleTema'
 import { useAuth } from '../context/AuthContext'
-import { getClienteById, actualizarCliente } from '../api/clientes'
+import { getClienteMe, actualizarCliente } from '../api/clientes'
 import { cambiarPassword } from '../api/auth'
 import api from '../api/axios'
 
@@ -136,7 +136,7 @@ export default function Perfil() {
     if (!usuario) { navigate('/login'); return }
     const cargar = async () => {
       try {
-        const clienteData = await getClienteById(usuario.id)
+        const clienteData = await getClienteMe()
         const c = clienteData.cliente ?? clienteData.data ?? clienteData
         setCliente(c)
         setForm({
