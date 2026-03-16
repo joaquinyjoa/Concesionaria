@@ -52,10 +52,11 @@ exports.getAll = async () => {
 
 exports.buscar = async (q) => {
     const result = await pool.query(
-        `SELECT id, nombre, apellido, documento, email, telefono, localidad
-         FROM clientes
-         WHERE LOWER(nombre || ' ' || apellido) LIKE LOWER($1)
-            OR documento LIKE $1
+        `SELECT c.id, c.nombre, c.apellido, c.documento, c.telefono, c.localidad, u.email
+         FROM clientes c
+         JOIN usuarios u ON u.id = c.id
+         WHERE LOWER(c.nombre || ' ' || c.apellido) LIKE LOWER($1)
+            OR c.documento LIKE $1
          LIMIT 10`,
         [`%${q}%`]
     )
