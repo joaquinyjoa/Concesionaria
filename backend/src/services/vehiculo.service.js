@@ -85,7 +85,10 @@ exports.getByFiltros = async (filtros) => {
 }
 
 exports.delete = async (id) => {
-    const vehiculo = await vehiculoRepository.getById(id);
-    if (!vehiculo) throw new Error('Vehículo no encontrado');
-    return await vehiculoRepository.delete(id);
+    // verificar si tiene ventas
+    const ventas = await pool.query('SELECT id FROM ventas WHERE vehiculo_id = $1 LIMIT 1', [id])
+    if (ventas.rows.length > 0) {
+        throw new Error('No se puede eliminar un vehículo que tiene ventas registradas')
+    }
+    return await vehiculoRepository.delete(id)
 }
