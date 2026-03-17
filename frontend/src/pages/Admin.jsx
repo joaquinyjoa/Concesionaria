@@ -747,9 +747,15 @@ function SeccionVehiculos({ isAdmin, usuario }) {
   const pag = filtrados.slice((pagina - 1) * PER, pagina * PER)
 
   const handleDelete = async (id) => {
-    try { await eliminarVehiculo(id); cargar() } catch {}
-    setConfirmDel(null)
-  }
+    try { 
+        await eliminarVehiculo(id)
+        cargar()
+        setConfirmDel(null)
+    } catch (e) {
+        setConfirmDel(null)
+        alert(e.response?.data?.error ?? e.message ?? 'Error al eliminar')
+    }
+}
 
   const estadoBadge = (e) => {
     const key = e?.toLowerCase()
