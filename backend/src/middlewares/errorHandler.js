@@ -25,7 +25,8 @@ function errorHandler(err, req, res, next) {
         'No se envió ninguna imagen',        
         'Solo se permiten imágenes',         
         'no puede tener más de 3 imágenes',  
-        'debe estar reservado'
+        'debe estar reservado',
+        'No se puede eliminar un vehículo que tiene ventas registradas'
     ];
     if (erroresValidacion.some(e => err.message.includes(e))) {
         return res.status(400).json({ error: err.message });
