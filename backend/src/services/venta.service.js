@@ -53,3 +53,12 @@ exports.getById = async (id) => {
 exports.getAllByCliente = async (cliente_id) => {
     return await ventaRepository.getAllByCliente(cliente_id);
 }
+
+exports.delete = async (id) => {
+    // verificar si tiene ventas
+    const ventas = await pool.query('SELECT id FROM ventas WHERE vehiculo_id = $1 LIMIT 1', [id])
+    if (ventas.rows.length > 0) {
+        throw new Error('No se puede eliminar un vehículo que tiene ventas registradas')
+    }
+    return await vehiculoRepository.delete(id)
+}
