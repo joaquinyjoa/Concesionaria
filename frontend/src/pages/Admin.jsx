@@ -1012,7 +1012,17 @@ function ModalVehiculo({ modo, vehiculo, onClose, onSuccess }) {
               {campo('Tipo', 'tipo', 'text', ['auto', 'moto', 'camioneta'])}
               {campo('Año', 'anio', 'number')}
               {campo('Motor', 'motor')}
-              {campo('Kilometraje', 'kilometraje', 'number')}
+              <div>
+                  <label className="modal-label">Kilometraje</label>
+                  <input
+                      className="modal-input"
+                      type="number"
+                      value={form.condicion === 'nuevo' ? '0' : form.kilometraje}
+                      onChange={e => set('kilometraje', e.target.value)}
+                      disabled={form.condicion === 'nuevo'}
+                      style={{ opacity: form.condicion === 'nuevo' ? 0.5 : 1, cursor: form.condicion === 'nuevo' ? 'not-allowed' : 'auto' }}
+                  />
+              </div>
               {campo('Condición', 'condicion', 'text', ['nuevo', 'usado'])}
               {campo('Estado', 'estado', 'text', ['disponible', 'reservado', 'vendido'])}
               {campo('Precio', 'precio', 'number')}
@@ -1417,7 +1427,11 @@ function SeccionCrearEmpleado() {
   const [exito, setExito] = useState(false)
   const [error, setError] = useState(null)
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const set = (k, v) => setForm(f => ({
+        ...f,
+        [k]: v,
+        ...(k === 'condicion' && v === 'nuevo' ? { kilometraje: '0' } : {})
+    }))
 
   const handleSubmit = async () => {
     setError(null)
