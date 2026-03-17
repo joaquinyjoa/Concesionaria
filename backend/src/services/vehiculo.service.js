@@ -1,6 +1,5 @@
 const vehiculoRepository = require("../repositories/vehiculo.repository");
 const notificacionService = require('./notificacion.service');
-const clienteRepository   = require('../repositories/cliente.repository');
 const { validarVehiculo } = require("../utils/vehiculo.validator");
 const pool = require('../config/database');
 
