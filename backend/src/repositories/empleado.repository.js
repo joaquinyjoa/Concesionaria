@@ -51,9 +51,6 @@ exports.delete = async (id) => {
 }
 
 exports.getByUsuarioId = async (usuario_id) => {
-    const result = await pool.query(
-        `SELECT * FROM empleados WHERE usuario_id = $1`,
-        [usuario_id]
-    );
-    return result.rows[0] ?? null;
+    const result = await pool.query(`SELECT * FROM empleados WHERE id = $1`, [usuario_id])
+    return result.rows[0] ?? null
 }

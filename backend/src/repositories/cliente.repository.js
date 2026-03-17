@@ -62,3 +62,8 @@ exports.buscar = async (q) => {
     )
     return result.rows
 }
+
+exports.getByUsuarioId = async (usuario_id) => {
+    const result = await pool.query(`SELECT * FROM clientes WHERE id = $1`, [usuario_id])
+    return result.rows[0] ?? null
+}
