@@ -1,20 +1,20 @@
 const imagenRepository = require('../repositories/imagen.repository');
 const vehiculoRepository = require('../repositories/vehiculo.repository');
-const fs = require('fs');
-const path = require('path');
+const { cloudinary } = require('../config/cloudinary');
 
 exports.create = async (vehiculo_id, file) => {
-    // verificar que el vehículo existe
     const vehiculo = await vehiculoRepository.getById(vehiculo_id);
     if (!vehiculo) throw new Error('Vehículo no encontrado');
 
-    // verificar que no tenga más de 3 imágenes
     const imagenesExistentes = await imagenRepository.getByVehiculoId(vehiculo_id);
     if (imagenesExistentes.length >= 3) {
         throw new Error('El vehículo no puede tener más de 3 imágenes');
     }
 
-    const url = `/uploads/${file.filename}`;
+    // Cloudinary ya subió el archivo, file.path es la URL
+    console.log('file.path:', file.path)
+    console.log('file:', file)
+    const url = file.path;
     return await imagenRepository.create(vehiculo_id, url);
 }
 
@@ -28,11 +28,11 @@ exports.delete = async (id) => {
     const imagen = await imagenRepository.getById(id);
     if (!imagen) throw new Error('Imagen no encontrada');
 
-    // borrar el archivo físico del servidor
-    const filePath = path.join(__dirname, '../../', imagen.url);
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-    }
+    // Borrar de Cloudinary usando el public_id
+    try {
+        const publicId = imagen.url.split('/').slice(-1)[0].split('.')[0]
+        await cloudinary.uploader.destroy(`autocare/${publicId}`)
+    } catch {}
 
     return await imagenRepository.delete(id);
 }
