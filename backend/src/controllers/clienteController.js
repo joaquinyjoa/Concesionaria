@@ -11,8 +11,7 @@ exports.getById = async (req, res, next) => {
 
 exports.getMe = async (req, res, next) => {
     try {
-        const cliente = await clienteRepository.getById(req.usuario.id)
-        if (!cliente) return res.status(404).json({ error: 'Cliente no encontrado' })
+        const cliente = await clienteService.getById(req.usuario.id)
         res.json(cliente)
     } catch (e) { next(e) }
 }

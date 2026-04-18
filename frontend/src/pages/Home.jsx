@@ -165,18 +165,14 @@ export default function Home() {
         .hero-fade.visible { opacity: 1; transform: translateY(0); }
         @keyframes spin { to { transform: rotate(360deg) } }
         .spinner-red { width: 16px; height: 16px; border: 2px solid rgba(230,57,70,0.2); border-top-color: #e63946; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+        .nav-mobile { display: none; }
         @media (max-width: 640px) {
           .hero-section { padding: 40px 5vw 32px !important; }
-          .hero-title { font-size: 28px !important; }
-          .hero-pills { flex-direction: column !important; gap: 8px !important; }
-          .nav-links { display: none !important; }
-          .nav-user-btn span { display: none; }
           .filtros-section { padding: 20px 5vw 0 !important; }
           .grid-vehiculos { grid-template-columns: 1fr !important; }
           .grid-section { padding: 20px 5vw 32px !important; }
-        }
-        @media (max-width: 400px) {
-          .hero-title { font-size: 24px !important; }
+          .nav-desktop { display: none !important; }
+          .nav-mobile { display: flex !important; gap: 8px; align-items: center; }
         }
       `}</style>
 
@@ -195,27 +191,46 @@ export default function Home() {
             AUTO <span style={{ color: 'var(--text)' }}>CARE</span>
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }} className="nav-links">
+        {/* Desktop nav */}
+        <div className="nav-desktop" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <ToggleTema />
           {usuario ? (
-            <>
-              <button onClick={() => navigate(usuario.rol === 'admin' || usuario.rol === 'empleado' ? '/admin' : '/perfil')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 7,
-                  padding: '8px 16px', borderRadius: 12, fontWeight: 700, fontSize: 14,
-                  background: 'linear-gradient(90deg,#e63946,#f4845f)', color: '#fff',
-                  border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
-                }}>
-                <User size={15} />
-                {usuario.nombre ?? usuario.email?.split('@')[0]}
-              </button>
-            </>
+            <button onClick={() => navigate(usuario.rol === 'admin' || usuario.rol === 'empleado' ? '/admin' : '/perfil')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '8px 16px', borderRadius: 12, fontWeight: 700, fontSize: 14,
+                background: 'linear-gradient(90deg,#e63946,#f4845f)', color: '#fff',
+                border: 'none', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+              }}>
+              <User size={15} />
+              {usuario.nombre ?? usuario.email?.split('@')[0]}
+            </button>
           ) : (
             <>
               <NavLink href="/login">Ingresar</NavLink>
               <NavLink href="/register" primary>Registrarse</NavLink>
             </>
           )}
+        </div>
+
+        {/* Mobile nav */}
+        <div className="nav-mobile">
+          <ToggleTema />
+          <button
+            onClick={() => navigate(
+              usuario
+                ? (usuario.rol === 'admin' || usuario.rol === 'empleado' ? '/admin' : '/perfil')
+                : '/login'
+            )}
+            style={{
+              background: usuario ? 'linear-gradient(90deg,#e63946,#f4845f)' : 'rgba(230,57,70,0.08)',
+              border: usuario ? 'none' : '1.5px solid rgba(230,57,70,0.25)',
+              borderRadius: 10, width: 38, height: 38,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+            }}>
+            <User size={17} color={usuario ? '#fff' : '#e63946'} />
+          </button>
         </div>
       </nav>
 
@@ -259,7 +274,7 @@ export default function Home() {
       </section>
 
       {/* FILTROS */}
-      <section style={{ padding: '32px 5vw 0' }}>
+      <section className="filtros-section" style={{ padding: '32px 5vw 0' }}>
         <div style={{
           background: 'var(--bg-card)', borderRadius: 20, padding: '24px 28px',
           boxShadow: '0 4px 24px var(--shadow)', border: '1px solid var(--border)',
@@ -303,7 +318,7 @@ export default function Home() {
       </section>
 
       {/* GRID */}
-      <section style={{ padding: '32px 5vw 48px' }}>
+      <section className="grid-section" style={{ padding: '32px 5vw 48px' }}>
         <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 20, color: 'var(--text)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
           Vehículos disponibles
           <span style={{ fontSize: 14, color: '#e63946', fontWeight: 600 }}>({filtrados.length})</span>

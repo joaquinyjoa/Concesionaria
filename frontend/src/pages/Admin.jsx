@@ -226,8 +226,8 @@ export default function Admin() {
         .nav-item { display:flex; align-items:center; gap:12px; padding:11px 16px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:600; transition:all 0.18s; color:var(--text-muted); border:none; background:none; width:100%; text-align:left; }
         .nav-item:hover { background:rgba(230,57,70,0.08); color:${R}; }
         .nav-item.active { background:linear-gradient(90deg,rgba(230,57,70,0.15),rgba(244,132,95,0.10)); color:${R}; }
-        .admin-table { width:100%; border-collapse:collapse; }
-        .admin-table th { text-align:left; padding:10px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); border-bottom:1.5px solid var(--border); background:var(--bg-card); }
+        .admin-table { width:100%; border-collapse:collapse; min-width:600px; }
+        .admin-table th { text-align:left; padding:10px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); border-bottom:1.5px solid var(--border); background:var(--bg-card); white-space:nowrap; }
         .admin-table td { padding:12px 14px; font-size:13.5px; color:var(--text); border-bottom:1px solid var(--border); vertical-align:middle; }
         .admin-table tr:hover td { background:rgba(230,57,70,0.03); }
         .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
@@ -268,12 +268,8 @@ export default function Admin() {
         @media (max-width: 768px) {
           .admin-sidebar { position:fixed !important; left:0; top:0; height:100vh; z-index:200; box-shadow:4px 0 24px rgba(0,0,0,0.18); }
           .search-input { width:140px !important; }
-          .admin-table-wrap { overflow-x: auto; }
-          .admin-table th:nth-child(n+5), .admin-table td:nth-child(n+5) { display:none; }
-          .stat-cards-row { flex-wrap: wrap !important; }
           .stat-card { min-width: calc(50% - 8px) !important; }
           .stats-grid { grid-template-columns: 1fr !important; }
-          .header-actions { gap: 8px !important; }
           .modal { padding: 20px !important; }
         }
         @media (max-width: 480px) {
@@ -586,8 +582,10 @@ function ModalVenderVehiculo({ vehiculo, onClose, onSuccess, usuario }) {
       // Obtener datos del empleado para el ticket
       let empleado = null
       try {
-        const empRes = await api.get('/empleados/me')
-        empleado = empRes.data
+        if (usuario?.id) {
+          const empRes = await api.get(`/empleados/${usuario.id}`)
+          empleado = empRes.data.empleado ?? empRes.data
+        }
       } catch {}
 
       // Generar ticket PDF
@@ -1280,9 +1278,9 @@ function SeccionVentas({ isAdmin, usuario }) {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>#</th><th>Vehículo ID</th><th>Cliente ID</th>
-                  {isAdmin && <th>Empleado ID</th>}
-                  <th>Fecha</th><th>Precio venta</th><th>Método pago</th>
+                  <th>#</th><th>Vehículo</th><th>Cliente</th>
+                  {isAdmin && <th>Vendedor</th>}
+                  <th>Fecha</th><th>Precio</th><th>Método</th>
                 </tr>
               </thead>
               <tbody>
@@ -1291,9 +1289,9 @@ function SeccionVentas({ isAdmin, usuario }) {
                   : pag.map(v => (
                     <tr key={v.id}>
                       <td style={{ fontWeight: 700, color: 'var(--text-muted)' }}>#{v.id}</td>
-                      <td>{v.vehiculo_id}</td>
-                      <td>{v.cliente_id}</td>
-                      {isAdmin && <td>{v.empleado_id}</td>}
+                      <td><span style={{ fontWeight: 700 }}>{v.marca}</span> {v.modelo}</td>
+                      <td>{v.cliente_nombre} {v.cliente_apellido}</td>
+                      {isAdmin && <td>{v.empleado_nombre} {v.empleado_apellido}</td>}
                       <td>{v.fecha_venta?.slice(0, 10)}</td>
                       <td style={{ fontWeight: 700, color: R }}>{fmt(v.precio_venta)}</td>
                       <td>{capitalize(v.metodo_pago)}</td>

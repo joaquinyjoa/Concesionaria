@@ -6,6 +6,7 @@ const { validarCliente } = require('../utils/cliente.validator');
 const { validarEmpleado } = require('../utils/empleado.validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { enviarResetPassword } = require('../utils/email');
 
 exports.register = async (data) => {
@@ -31,6 +32,12 @@ exports.register = async (data) => {
         rol: data.rol.toLowerCase()
     });
 
+    const token = jwt.sign(
+        { id: nuevoUsuario.id, email: nuevoUsuario.email, rol: nuevoUsuario.rol },
+        process.env.JWT_SECRET,
+        { expiresIn: '8h' }
+    );
+
     const datosPersonales = {
         nombre: data.nombre,
         apellido: data.apellido,
@@ -43,11 +50,11 @@ exports.register = async (data) => {
     if (data.rol.toLowerCase() === 'cliente') {
         const nuevoCliente = await clienteRepository.create(nuevoUsuario.id, datosPersonales);
         await usuarioRepository.verificar(nuevoUsuario.id);
-        return { ...nuevoUsuario, ...nuevoCliente };
+        return { token, ...nuevoUsuario, ...nuevoCliente };
     } else if (data.rol.toLowerCase() === 'empleado') {
         const nuevoEmpleado = await empleadoRepository.create(nuevoUsuario.id, datosPersonales);
         await usuarioRepository.verificar(nuevoUsuario.id);
-        return { ...nuevoUsuario, ...nuevoEmpleado };
+        return { token, ...nuevoUsuario, ...nuevoEmpleado };
     }
 }
 

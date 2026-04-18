@@ -43,9 +43,9 @@ exports.reservar = async (id, usuario) => {
         throw new Error('El vehículo no está disponible para reservar');
     }
 
-    // Obtener cliente desde el usuario logueado
+    // Obtener cliente desde el usuario logueado (cliente.id === usuario.id)
     const clienteResult = await pool.query(
-        `SELECT id FROM clientes WHERE usuario_id = $1`, [usuario.id]
+        `SELECT id FROM clientes WHERE id = $1`, [usuario.id]
     );
     const cliente = clienteResult.rows[0];
     if (!cliente) throw new Error('No se encontró el cliente asociado');

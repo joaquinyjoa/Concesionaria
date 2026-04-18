@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS vehiculos (
     condicion VARCHAR(50),
     estado VARCHAR(50),
     descripcion TEXT,
-    precio NUMERIC
+    precio NUMERIC,
+    reservado_por INTEGER
 );
 `;
 
@@ -22,7 +23,10 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email VARCHAR(150) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    rol VARCHAR(50) NOT NULL
+    rol VARCHAR(50) NOT NULL,
+    verificado BOOLEAN DEFAULT false,
+    reset_token TEXT,
+    reset_token_expira TIMESTAMP
 );
 `;
 
@@ -76,6 +80,26 @@ CREATE TABLE IF NOT EXISTS ventas (
 );
 `;
 
+const queryCrearTablaNotificaciones = `
+CREATE TABLE IF NOT EXISTS notificaciones (
+    id SERIAL PRIMARY KEY,
+    tipo VARCHAR(50),
+    mensaje TEXT,
+    vehiculo_id INTEGER REFERENCES vehiculos(id),
+    cliente_id INTEGER REFERENCES clientes(id),
+    leida BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
+// Migraciones para bases de datos ya existentes
+const migraciones = [
+    `ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS verificado BOOLEAN DEFAULT false`,
+    `ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token TEXT`,
+    `ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token_expira TIMESTAMP`,
+    `ALTER TABLE vehiculos ADD COLUMN IF NOT EXISTS reservado_por INTEGER`,
+];
+
 (async () => {
     const client = await pool.connect();
     try {
@@ -85,6 +109,11 @@ CREATE TABLE IF NOT EXISTS ventas (
         await client.query(queryCrearTablaEmpleados);
         await client.query(queryCrearTablaImagenes);
         await client.query(queryCrearTablaVentas);
+        await client.query(queryCrearTablaNotificaciones);
+
+        for (const sql of migraciones) {
+            await client.query(sql);
+        }
 
         console.log("Base de datos inicializada correctamente 🚀");
     } catch (error) {
